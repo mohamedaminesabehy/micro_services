@@ -1,0 +1,204 @@
+<div class="dashboard">
+  <div class="container-fluid">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="welcome-banner">
+          <div class="content">
+            <h1>Welcome to Food Explorer</h1>
+            <p class="lead">Discover amazing restaurants, delicious menus, and exciting food events</p>
+            <div class="search-container">
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search for restaurants, dishes, or cuisines...">
+                <button class="btn btn-success" type="button">
+                  <i class="bi bi-search me-2"></i>Search
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading indicator -->
+    <div *ngIf="loading" class="text-center my-5">
+      <div class="spinner-border text-success" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3 text-muted">Loading dashboard data...</p>
+    </div>
+
+    <!-- Error message -->
+    <div *ngIf="error" class="alert alert-warning">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      {{ error }}
+    </div>
+
+    <!-- Dashboard content (only show when not loading) -->
+    <div *ngIf="!loading">
+      <!-- Quick Stats -->
+      <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+          <div class="stat-card">
+            <div class="icon-container">
+              <i class="bi bi-shop"></i>
+            </div>
+            <div class="stat-content">
+              <h3>{{restaurantCount}}</h3>
+              <p>Restaurants</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+          <div class="stat-card">
+            <div class="icon-container">
+              <i class="bi bi-menu-button-wide"></i>
+            </div>
+            <div class="stat-content">
+              <h3>{{menuItemCount}}+</h3>
+              <p>Menu Items</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+          <div class="stat-card">
+            <div class="icon-container">
+              <i class="bi bi-calendar-event"></i>
+            </div>
+            <div class="stat-content">
+              <h3>{{eventCount}}</h3>
+              <p>Upcoming Events</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+          <div class="stat-card">
+            <div class="icon-container">
+              <i class="bi bi-star"></i>
+            </div>
+            <div class="stat-content">
+              <h3>{{averageRating}}</h3>
+              <p>Average Rating</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Featured Restaurants -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="section-header d-flex justify-content-between align-items-center">
+            <h2>Featured Restaurants</h2>
+            <a routerLink="/restaurants" class="btn btn-outline-success btn-sm">View All</a>
+          </div>
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-4" *ngFor="let restaurant of featuredRestaurants">
+          <div class="restaurant-card">
+            <div class="restaurant-image">
+              <img [src]="restaurant.image" [alt]="restaurant.name">
+              <span class="badge bg-success rating">
+                <i class="bi bi-star-fill me-1"></i>{{restaurant.rating}}
+              </span>
+            </div>
+            <div class="restaurant-info">
+              <h5>{{restaurant.name}}</h5>
+              <p class="cuisine">{{restaurant.cuisine}}</p>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="delivery-time">
+                  <i class="bi bi-clock me-1"></i>{{restaurant.deliveryTime}}
+                </span>
+                <span class="price-range">{{restaurant.priceRange}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Popular Menu Items -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="section-header d-flex justify-content-between align-items-center">
+            <h2>Popular Menu Items</h2>
+            <a routerLink="/menu" class="btn btn-outline-success btn-sm">View All</a>
+          </div>
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-4" *ngFor="let item of popularMenuItems">
+          <div class="menu-card">
+            <div class="menu-image">
+              <img [src]="item.image" [alt]="item.name">
+              <span class="badge bg-success" *ngIf="item.vegetarian">Vegetarian</span>
+            </div>
+            <div class="menu-info">
+              <h5>{{item.name}}</h5>
+              <p class="description">{{item.description}}</p>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="price">${{item.price}}</span>
+                <button class="btn btn-sm btn-success">
+                  <i class="bi bi-plus-circle me-1"></i>Add
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upcoming Events -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="section-header d-flex justify-content-between align-items-center">
+            <h2>Upcoming Events</h2>
+            <a routerLink="/events" class="btn btn-outline-success btn-sm">View All</a>
+          </div>
+        </div>
+      </div>
+      <div class="row mb-4">
+        <div class="col-md-6 mb-4" *ngFor="let event of upcomingEvents">
+          <div class="event-card">
+            <div class="row g-0">
+              <div class="col-md-5">
+                <img [src]="event.image" class="event-image" [alt]="event.name">
+              </div>
+              <div class="col-md-7">
+                <div class="event-info">
+                  <h5>{{event.name}}</h5>
+                  <div class="event-details">
+                    <p><i class="bi bi-calendar3 me-2"></i>{{event.date}}</p>
+                    <p><i class="bi bi-geo-alt me-2"></i>{{event.location}}</p>
+                    <p><i class="bi bi-tag me-2"></i>{{event.price}}</p>
+                  </div>
+                  <p class="event-description">{{event.description}}</p>
+                  <button class="btn btn-success btn-sm">Learn More</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Newsletter Subscription -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="newsletter-card">
+            <div class="row align-items-center">
+              <div class="col-md-7">
+                <h3>Subscribe to Our Newsletter</h3>
+                <p>Get the latest updates on new restaurants, special offers, and upcoming events.</p>
+                <div class="input-group">
+                  <input type="email" class="form-control" placeholder="Enter your email address">
+                  <button class="btn btn-success" type="button">Subscribe</button>
+                </div>
+              </div>
+              <div class="col-md-5 d-none d-md-block">
+                <img src="assets/images/newsletter-image.jpg" alt="Newsletter" class="img-fluid">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

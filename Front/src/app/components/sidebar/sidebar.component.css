@@ -1,0 +1,72 @@
+.sidebar {
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  padding: 0;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.logo-container {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 20px;
+}
+
+.avatar-container {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.avatar-container:hover {
+  transform: scale(1.05);
+}
+
+.avatar-container .avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-profile h5 {
+  font-weight: 600;
+  margin-top: 15px;
+}
+
+.menu-items {
+  margin-top: 2rem;
+}
+
+.menu-items .menu-item {
+  display: flex;
+  align-items: center;
+  padding: 0.8rem 2rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-left: 4px solid transparent;
+}
+
+.menu-items .menu-item i {
+  margin-right: 1rem;
+  font-size: 1.2rem;
+  transition: transform 0.2s ease;
+}
+
+.menu-items .menu-item:hover i {
+  transform: translateX(3px);
+}
+
+.menu-items .menu-item:hover,
+.menu-items .menu-item.active {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-left: 4px solid #ffffff;
+}
+
+.menu-items .menu-item.active {
+  font-weight: 600;
+}

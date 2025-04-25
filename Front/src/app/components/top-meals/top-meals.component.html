@@ -1,0 +1,18 @@
+<div class="top-meals mb-5">
+    <h4 class="mb-4">Top meals this week</h4>
+    
+    <div class="row">
+      <div class="col-md-2 mb-3" *ngFor="let meal of topMeals">
+        <div class="meal-card">
+          <div class="position-relative">
+            <img [src]="meal.image" alt="{{meal.name}}" class="img-fluid rounded mb-2">
+            <span class="price-tag">$ {{meal.price}}</span>
+          </div>
+          <h6>{{meal.name}}</h6>
+          <div class="rating">
+            <i class="bi bi-star-fill text-warning" *ngFor="let star of [1,2,3,4,5]"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

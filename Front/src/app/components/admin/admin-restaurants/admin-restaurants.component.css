@@ -1,0 +1,29 @@
+.admin-restaurants {
+  padding: 20px;
+}
+
+.card {
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.restaurant-thumbnail {
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
+  object-fit: cover;
+}
+
+.table th, .table td {
+  vertical-align: middle;
+}
+
+.pagination .page-link {
+  color: #28a745;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #28a745;
+  border-color: #28a745;
+  color: white;
+}

@@ -1,0 +1,34 @@
+<div class="favorite-restaurants">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4>Your favourite restaurants</h4>
+      <div class="navigation-buttons">
+        <button class="btn btn-sm btn-light rounded-circle me-2">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <button class="btn btn-sm btn-light rounded-circle">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-4 mb-3" *ngFor="let restaurant of favoriteRestaurants">
+        <div class="restaurant-card p-3 border rounded">
+          <img [src]="restaurant.image" alt="{{restaurant.name}}" class="img-fluid rounded mb-3">
+          <h5>{{restaurant.name}}</h5>
+          <div class="rating mb-2">
+            <i class="bi bi-star-fill text-warning" *ngFor="let star of [1,2,3,4,5]"></i>
+          </div>
+          <div class="location d-flex align-items-center mb-2">
+            <i class="bi bi-geo-alt text-success me-2"></i>
+            <span>{{restaurant.location}}</span>
+          </div>
+          <div class="categories small text-muted">
+            <span>Casual Dining</span> • 
+            <span>{{restaurant.cuisine}}</span> • 
+            <span>{{restaurant.type}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

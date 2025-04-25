@@ -1,0 +1,143 @@
+<div class="menu-container">
+  <div *ngIf="loading" class="text-center my-5 py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3 text-muted">Loading menu items...</p>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger shadow-sm">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!loading">
+    <!-- Restaurant Header -->
+    <div *ngIf="restaurant" class="restaurant-header mb-5">
+      <div class="restaurant-banner" [style.background-image]="'url(' + restaurant.image + ')'">
+        <div class="overlay">
+          <div class="container">
+            <div class="restaurant-info">
+              <h1 class="restaurant-name">{{restaurant.nom}}</h1>
+              <div class="restaurant-meta">
+                <span><i class="bi bi-geo-alt-fill me-2"></i>{{restaurant.adresse}}</span>
+                <span><i class="bi bi-telephone-fill me-2"></i>{{restaurant.telephone}}</span>
+                <span><i class="bi bi-people-fill me-2"></i>Capacity: {{restaurant.capacite}} people</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menu Header -->
+    <div class="header-section mb-4">
+      <h2 class="menu-title" *ngIf="restaurant">Menu at <span class="highlight">{{restaurant.nom}}</span></h2>
+      <h2 class="menu-title" *ngIf="!restaurant">Our <span class="highlight">Menu</span></h2>
+      
+      <!-- Category Tabs -->
+      <div class="category-tabs mt-4">
+        <ul class="nav nav-pills">
+          <li class="nav-item">
+            <a class="nav-link active" href="#">All Items</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Appetizers</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Main Course</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Desserts</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Beverages</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div *ngIf="menuItems.length === 0" class="alert alert-info shadow-sm">
+      <i class="bi bi-info-circle-fill me-2"></i>
+      No menu items available for this restaurant.
+    </div>
+
+    <!-- Menu Special -->
+    <div *ngIf="menuItems.length > 0" class="menu-special mb-5">
+      <div class="card text-white">
+        <img [src]="menuItems[0].image" class="card-img" alt="{{menuItems[0].nom}}">
+        <div class="card-img-overlay d-flex flex-column justify-content-end">
+          <div class="special-content">
+            <span class="badge bg-danger mb-2">Chef's Special</span>
+            <h3 class="card-title">{{menuItems[0].nom}}</h3>
+            <p class="card-text">{{menuItems[0].description}}</p>
+            <div class="d-flex align-items-center">
+              <span class="special-price me-3">${{menuItems[0].prix}}</span>
+              <span class="special-calories">{{menuItems[0].calories}} calories</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menu Items Grid -->
+    <div class="menu-items">
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class="col" *ngFor="let item of menuItems; let i = index">
+          <div class="menu-item-card">
+            <div class="menu-item-image">
+              <img [src]="item.image" alt="{{item.nom}}">
+              <div class="calories-badge">
+                <span>{{item.calories}} cal</span>
+              </div>
+            </div>
+            <div class="menu-item-content">
+              <h5 class="menu-item-title">{{item.nom}}</h5>
+              <p class="menu-item-description">{{item.description}}</p>
+              <!-- Only showing the part that needs to be modified -->
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <span class="price">${{item.prix}}</span>
+                <div>
+                  <button class="btn btn-sm btn-outline-primary me-2" (click)="addToCart(item)">
+                    <i class="bi bi-plus-lg"></i> Add to Cart
+                  </button>
+                  <button class="btn btn-sm btn-info text-white" (click)="showDetails(item)" data-bs-toggle="modal" data-bs-target="#menuDetailsModal">
+                    <i class="bi bi-info-circle"></i> Details
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Menu Details Modal -->
+<div class="modal fade" id="menuDetailsModal" tabindex="-1" aria-labelledby="menuDetailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" *ngIf="selectedMenu">
+      <div class="modal-header">
+        <h5 class="modal-title" id="menuDetailsModalLabel">{{selectedMenu.nom}} Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-5">
+            <img [src]="selectedMenu.image" class="img-fluid rounded" alt="{{selectedMenu.nom}}">
+          </div>
+          <div class="col-md-7">
+            <h4>{{selectedMenu.nom}}</h4>
+            <p>{{selectedMenu.description}}</p>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><strong>Price:</strong> ${{selectedMenu.prix}}</li>
+              <li class="list-group-item"><strong>Calories:</strong> {{selectedMenu.calories}}</li>
+              <li class="list-group-item" *ngIf="restaurant"><strong>Restaurant:</strong> {{restaurant.nom}}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

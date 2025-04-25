@@ -1,0 +1,223 @@
+<div class="admin-events">
+  <div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2>Manage Events</h2>
+        <p class="text-muted">Add, edit, or remove food events and festivals</p>
+        <p *ngIf="averageCapacity > 0" class="text-info">Average Capacity: {{averageCapacity | number:'1.0-0'}}</p>
+      </div>
+      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addEventModal">
+        <i class="bi bi-plus-circle me-2"></i>Add Event
+      </button>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <div class="input-group">
+              <span class="input-group-text bg-light border-0">
+                <i class="bi bi-search"></i>
+              </span>
+              <input type="text" class="form-control bg-light border-0" placeholder="Search events...">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <select class="form-select bg-light border-0">
+              <option selected>Filter by Type</option>
+              <option>Food Festival</option>
+              <option>Cooking Class</option>
+              <option>Wine Tasting</option>
+              <option>Competition</option>
+              <option>Farmers Market</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <select class="form-select bg-light border-0">
+              <option selected>Sort by</option>
+              <option>Date (Newest)</option>
+              <option>Date (Oldest)</option>
+              <option>Name (A-Z)</option>
+              <option>Name (Z-A)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead class="table-light">
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Event</th>
+                <th scope="col">Dates</th>
+                <th scope="col">Capacity</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let event of events; let i = index">
+                <td>{{event.id}}</td>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <img [src]="event.image" alt="{{event.name}}" class="event-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                    <div>
+                      <span class="fw-bold">{{event.name}}</span>
+                      <p class="text-muted small mb-0">{{event.description | slice:0:50}}{{event.description.length > 50 ? '...' : ''}}</p>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div>Start: {{event.startDate}}</div>
+                  <div>End: {{event.endDate}}</div>
+                </td>
+                <td>{{event.capaciteMax}} people</td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-primary" (click)="editEvent(event)" data-bs-toggle="modal" data-bs-target="#editEventModal">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="deleteEvent(event.id)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+            <li class="page-item disabled">
+              <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+            </li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+              <a class="page-link" href="#">Next</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Event Modal -->
+  <div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addEventModalLabel">Add New Event</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="eventForm">
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <label for="eventName" class="form-label">Event Name</label>
+                <input type="text" class="form-control" id="eventName" formControlName="nom" placeholder="Enter event name">
+                <div *ngIf="eventForm.get('nom')?.invalid && eventForm.get('nom')?.touched" class="text-danger">
+                  Event name is required
+                </div>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="startDate" class="form-label">Start Date</label>
+                <input type="date" class="form-control" id="startDate" formControlName="dateDebut">
+                <div *ngIf="eventForm.get('dateDebut')?.invalid && eventForm.get('dateDebut')?.touched" class="text-danger">
+                  Start date is required
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="endDate" class="form-label">End Date</label>
+                <input type="date" class="form-control" id="endDate" formControlName="dateFin">
+                <div *ngIf="eventForm.get('dateFin')?.invalid && eventForm.get('dateFin')?.touched" class="text-danger">
+                  End date is required
+                </div>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <label for="capaciteMax" class="form-label">Maximum Capacity</label>
+                <input type="number" class="form-control" id="capaciteMax" formControlName="capaciteMax" placeholder="Enter maximum capacity">
+                <div *ngIf="eventForm.get('capaciteMax')?.invalid && eventForm.get('capaciteMax')?.touched" class="text-danger">
+                  Maximum capacity is required and must be at least 1
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea class="form-control" id="description" formControlName="description" rows="3" placeholder="Describe the event"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="resetForm()">Cancel</button>
+          <button type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="eventForm.invalid">
+            {{isEditing ? 'Update Event' : 'Add Event'}}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Event Modal - Same form as Add Event Modal -->
+  <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editEventModalLabel">Edit Event</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="eventForm">
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <label for="editEventName" class="form-label">Event Name</label>
+                <input type="text" class="form-control" id="editEventName" formControlName="nom">
+                <div *ngIf="eventForm.get('nom')?.invalid && eventForm.get('nom')?.touched" class="text-danger">
+                  Event name is required
+                </div>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="editStartDate" class="form-label">Start Date</label>
+                <input type="date" class="form-control" id="editStartDate" formControlName="dateDebut">
+                <div *ngIf="eventForm.get('dateDebut')?.invalid && eventForm.get('dateDebut')?.touched" class="text-danger">
+                  Start date is required
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="editEndDate" class="form-label">End Date</label>
+                <input type="date" class="form-control" id="editEndDate" formControlName="dateFin">
+                <div *ngIf="eventForm.get('dateFin')?.invalid && eventForm.get('dateFin')?.touched" class="text-danger">
+                  End date is required
+                </div>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <label for="editCapaciteMax" class="form-label">Maximum Capacity</label>
+                <input type="number" class="form-control" id="editCapaciteMax" formControlName="capaciteMax">
+                <div *ngIf="eventForm.get('capaciteMax')?.invalid && eventForm.get('capaciteMax')?.touched" class="text-danger">
+                  Maximum capacity is required and must be at least 1
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="editDescription" class="form-label">Description</label>
+              <textarea class="form-control" id="editDescription" formControlName="description" rows="3"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="resetForm()">Cancel</button>
+          <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="eventForm.invalid">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

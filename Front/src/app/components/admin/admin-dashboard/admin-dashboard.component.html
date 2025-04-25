@@ -1,0 +1,149 @@
+<div class="admin-dashboard">
+  <div class="container-fluid">
+    <div class="row mb-4">
+      <div class="col-12">
+        <h2>Admin Dashboard</h2>
+        <p class="text-muted">Manage your restaurants, menus, and events</p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="card-title">Restaurants</h5>
+              <i class="bi bi-shop fs-1 text-success"></i>
+            </div>
+            <p class="card-text">Manage all restaurants, add new ones, update details, or remove listings.</p>
+            <a routerLink="/admin/restaurants" class="btn btn-success">Manage Restaurants</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="card-title">Menu Items</h5>
+              <i class="bi bi-menu-button-wide fs-1 text-success"></i>
+            </div>
+            <p class="card-text">Add, edit or remove menu items. Update prices, descriptions, and availability.</p>
+            <a routerLink="/admin/menu" class="btn btn-success">Manage Menu</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="card-title">Events</h5>
+              <i class="bi bi-calendar-event fs-1 text-success"></i>
+            </div>
+            <p class="card-text">Create and manage food events, festivals, and special promotions.</p>
+            <a routerLink="/admin/events" class="btn btn-success">Manage Events</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-md-6 mb-4">
+        <div class="card">
+          <div class="card-header bg-success text-white">
+            Recent Activities
+          </div>
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="badge bg-success me-2">New</span>
+                  Restaurant "Spice Garden" added
+                </div>
+                <small class="text-muted">2 hours ago</small>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="badge bg-warning me-2">Update</span>
+                  Menu item "Classic Burger" price updated
+                </div>
+                <small class="text-muted">Yesterday</small>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="badge bg-danger me-2">Delete</span>
+                  Event "Wine Tasting" removed
+                </div>
+                <small class="text-muted">3 days ago</small>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="badge bg-success me-2">New</span>
+                  Menu item "Vegetable Stir Fry" added
+                </div>
+                <small class="text-muted">5 days ago</small>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 mb-4">
+        <div class="card">
+          <div class="card-header bg-success text-white">
+            System Statistics
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <div class="d-flex align-items-center">
+                  <div class="stat-icon bg-light rounded-circle p-3 me-3">
+                    <i class="bi bi-shop text-success fs-4"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0">Total Restaurants</h6>
+                    <h3 class="mb-0">24</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <div class="d-flex align-items-center">
+                  <div class="stat-icon bg-light rounded-circle p-3 me-3">
+                    <i class="bi bi-menu-button-wide text-success fs-4"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0">Menu Items</h6>
+                    <h3 class="mb-0">156</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <div class="d-flex align-items-center">
+                  <div class="stat-icon bg-light rounded-circle p-3 me-3">
+                    <i class="bi bi-calendar-event text-success fs-4"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0">Active Events</h6>
+                    <h3 class="mb-0">8</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <div class="d-flex align-items-center">
+                  <div class="stat-icon bg-light rounded-circle p-3 me-3">
+                    <i class="bi bi-people text-success fs-4"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0">Users</h6>
+                    <h3 class="mb-0">1,245</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

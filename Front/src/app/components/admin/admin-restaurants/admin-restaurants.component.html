@@ -1,0 +1,209 @@
+<div class="admin-restaurants">
+  <div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2>Manage Restaurants</h2>
+        <p class="text-muted">Add, edit, or remove restaurant listings</p>
+      </div>
+      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addRestaurantModal">
+        <i class="bi bi-plus-circle me-2"></i>Add Restaurant
+      </button>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <div class="input-group">
+              <span class="input-group-text bg-light border-0">
+                <i class="bi bi-search"></i>
+              </span>
+              <input type="text" class="form-control bg-light border-0" placeholder="Search restaurants...">
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="loading" class="text-center my-3">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert alert-danger">
+          {{ errorMessage }}
+        </div>
+
+        <div class="table-responsive" *ngIf="!loading">
+          <table class="table table-hover">
+            <thead class="table-light">
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Restaurant</th>
+                <th scope="col">Address</th>
+                <th scope="col">Capacity</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let restaurant of restaurants">
+                <td>{{restaurant.id}}</td>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <img [src]="restaurant.image" alt="{{restaurant.nom}}" class="restaurant-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                    <span>{{restaurant.nom}}</span>
+                  </div>
+                </td>
+                <td>{{restaurant.adresse}}</td>
+                <td>{{restaurant.capacite}}</td>
+                <td>{{restaurant.telephone}}</td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-primary" (click)="editRestaurant(restaurant)" data-bs-toggle="modal" data-bs-target="#editRestaurantModal">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="deleteRestaurant(restaurant.id!)" data-bs-toggle="modal" data-bs-target="#deleteRestaurantModal">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-info" [routerLink]="['/admin/menu']" [queryParams]="{restaurantId: restaurant.id}">
+                      <i class="bi bi-list"></i> Menus
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Restaurant Modal -->
+  <div class="modal fade" id="addRestaurantModal" tabindex="-1" aria-labelledby="addRestaurantModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addRestaurantModalLabel">Add New Restaurant</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="restaurantForm" (ngSubmit)="onSubmit()">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="restaurantName" class="form-label">Restaurant Name</label>
+                <input type="text" class="form-control" id="restaurantName" formControlName="nom" placeholder="Enter restaurant name">
+                <div *ngIf="restaurantForm.get('nom')?.invalid && restaurantForm.get('nom')?.touched" class="text-danger">
+                  Name is required
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="telephone" class="form-label">Phone Number</label>
+                <input type="number" class="form-control" id="telephone" formControlName="telephone" placeholder="Phone number">
+                <div *ngIf="restaurantForm.get('telephone')?.invalid && restaurantForm.get('telephone')?.touched" class="text-danger">
+                  Valid phone number is required
+                </div>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <label for="adresse" class="form-label">Address</label>
+                <input type="text" class="form-control" id="adresse" formControlName="adresse" placeholder="Full address">
+                <div *ngIf="restaurantForm.get('adresse')?.invalid && restaurantForm.get('adresse')?.touched" class="text-danger">
+                  Address is required
+                </div>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="capacite" class="form-label">Capacity</label>
+                <input type="number" class="form-control" id="capacite" formControlName="capacite" placeholder="Seating capacity">
+                <div *ngIf="restaurantForm.get('capacite')?.invalid && restaurantForm.get('capacite')?.touched" class="text-danger">
+                  Valid capacity is required
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="image" class="form-label">Image URL</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" id="image" formControlName="image" placeholder="Image URL" readonly>
+                  <button type="button" class="btn btn-outline-secondary" (click)="imageInput.click()">Import Image</button>
+                  <input type="file" #imageInput accept="image/*" style="display: none;" (change)="onImageSelected($event)">
+                </div>
+                <div *ngIf="restaurantForm.get('image')?.invalid && restaurantForm.get('image')?.touched" class="text-danger">
+                  Image URL is required
+                </div>
+                <div *ngIf="imagePreview" class="mt-2">
+                  <img [src]="imagePreview" alt="Preview" style="max-width: 100px; max-height: 100px;">
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeAddModal">Cancel</button>
+              <button type="submit" class="btn btn-success" [disabled]="restaurantForm.invalid">Add Restaurant</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Restaurant Modal -->
+  <div class="modal fade" id="editRestaurantModal" tabindex="-1" aria-labelledby="editRestaurantModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editRestaurantModalLabel">Edit Restaurant</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="restaurantForm" (ngSubmit)="onSubmit()">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="editRestaurantName" class="form-label">Restaurant Name</label>
+                <input type="text" class="form-control" id="editRestaurantName" formControlName="nom">
+                <div *ngIf="restaurantForm.get('nom')?.invalid && restaurantForm.get('nom')?.touched" class="text-danger">
+                  Name is required
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="editTelephone" class="form-label">Phone Number</label>
+                <input type="number" class="form-control" id="editTelephone" formControlName="telephone">
+                <div *ngIf="restaurantForm.get('telephone')?.invalid && restaurantForm.get('telephone')?.touched" class="text-danger">
+                  Valid phone number is required
+                </div>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <label for="editAdresse" class="form-label">Address</label>
+                <input type="text" class="form-control" id="editAdresse" formControlName="adresse">
+                <div *ngIf="restaurantForm.get('adresse')?.invalid && restaurantForm.get('adresse')?.touched" class="text-danger">
+                  Address is required
+                </div>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="editCapacite" class="form-label">Capacity</label>
+                <input type="number" class="form-control" id="editCapacite" formControlName="capacite">
+                <div *ngIf="restaurantForm.get('capacite')?.invalid && restaurantForm.get('capacite')?.touched" class="text-danger">
+                  Valid capacity is required
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="editImage" class="form-label">Image URL</label>
+                <input type="text" class="form-control" id="editImage" formControlName="image">
+                <div *ngIf="restaurantForm.get('image')?.invalid && restaurantForm.get('image')?.touched" class="text-danger">
+                  Image URL is required
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeEditModal">Cancel</button>
+              <button type="submit" class="btn btn-primary" [disabled]="restaurantForm.invalid">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

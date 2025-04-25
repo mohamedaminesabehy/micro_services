@@ -1,0 +1,46 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: restaurant-service
+          uri: lb://RESTAURANT
+          predicates:
+            - Path=/restaurants/**
+          filters:
+            - StripPrefix=1
+        - id: recette-h2-console
+          uri: lb://SALMA-SERVICE
+          predicates:
+            - Path=/gestion-recette/h2-console/**
+          filters:
+            - RewritePath=/gestion-recette/h2-console/(?<segment>.*), /h2-console/${segment}
+        - id: gestion-recette
+          uri: lb://GESTIONRECETTE
+          predicates:
+            - Path=/recettes/**
+          filters:
+            - StripPrefix=1
+        - id: menu-service
+          uri: lb://MENU
+          predicates:
+            - Path=/menus/**
+          filters:
+            - StripPrefix=1
+        - id: avis-service
+          uri: lb://AVIS
+          predicates:
+            - Path=/avis/**
+          filters:
+            - StripPrefix=1
+        - id: event-service
+          uri: lb://EVENT
+          predicates:
+            - Path=/events/**
+          filters:
+            - StripPrefix=1
+        - id: nodejs-service
+          uri: lb://NODEJS-SERVICE
+          predicates:
+            - Path=/panier/**
+          filters:
+            - StripPrefix=1

@@ -1,0 +1,80 @@
+<div class="recipe-details" *ngIf="recipe">
+  <div class="row">
+    <div class="col-md-5">
+      <img [src]="recipe.image" [alt]="recipe.titre" class="img-fluid rounded mb-3 shadow recipe-img">
+      <button class="btn btn-outline-danger w-100 mt-2" (click)="downloadPdf()">
+        <i class="bi bi-file-earmark-pdf me-2"></i>Download PDF
+      </button>
+    </div>
+    <div class="col-md-7">
+      <h2 class="fw-bold">{{recipe.titre}}</h2>
+      <p class="text-muted">{{recipe.description}}</p>
+      <h5 class="mt-4">Ingredients</h5>
+      <ul class="list-group mb-3">
+        <li class="list-group-item" *ngFor="let ing of ingredientsList">{{ing}}</li>
+      </ul>
+      <h5>Instructions</h5>
+      <ol class="list-group list-group-numbered mb-3">
+        <li class="list-group-item" *ngFor="let step of instructionsList">{{step}}</li>
+      </ol>
+    </div>
+  </div>
+  <div class="mt-5">
+    <h4>Reviews</h4>
+    <div *ngIf="averageRating !== null" class="mb-2">
+      <span class="badge bg-primary">
+        Average Rating:
+        <ng-container *ngFor="let star of getStars(getRoundedAverage()); let i = index">
+          <i class="bi bi-star-fill text-warning"></i>
+        </ng-container>
+        <ng-container *ngFor="let star of getStars(5 - getRoundedAverage()); let i = index">
+          <i class="bi bi-star text-secondary"></i>
+        </ng-container>
+        ({{averageRating | number:'1.1-2'}} / 5)
+      </span>
+    </div>
+    <div *ngIf="reviews.length === 0" class="alert alert-info">No reviews yet.</div>
+    <div *ngFor="let review of reviews" class="card mb-3 review-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <strong>{{review.clientNom}}</strong>
+            <span class="ms-2">
+              <ng-container *ngFor="let star of getStars(review.note); let i = index">
+                <i class="bi bi-star-fill text-warning"></i>
+              </ng-container>
+              <ng-container *ngFor="let star of getStars(5 - review.note); let i = index">
+                <i class="bi bi-star text-secondary"></i>
+              </ng-container>
+            </span>
+          </div>
+          <small class="text-muted">{{review.dateSoumission | date:'shortDate'}}</small>
+        </div>
+        <p class="mt-2 mb-0">{{review.commentaire}}</p>
+      </div>
+    </div>
+    <!-- Add Review Form -->
+    <div class="card mt-4 shadow-sm">
+      <div class="card-body">
+        <h5>Add a Review</h5>
+        <div class="mb-2">
+          <input type="text" class="form-control" placeholder="Your Name" [(ngModel)]="newReview.clientNom">
+        </div>
+        <div class="mb-2">
+          <div class="star-rating">
+            <ng-container *ngFor="let n of [1,2,3,4,5]">
+              <i class="bi"
+                 [ngClass]="n <= newReview.note ? 'bi-star-fill text-warning' : 'bi-star text-secondary'"
+                 style="cursor:pointer; font-size:1.3rem;"
+                 (click)="newReview.note = n"></i>
+            </ng-container>
+          </div>
+        </div>
+        <div class="mb-2">
+          <textarea class="form-control" rows="2" placeholder="Your comment" [(ngModel)]="newReview.commentaire"></textarea>
+        </div>
+        <button class="btn btn-success" (click)="addReview()">Submit Review</button>
+      </div>
+    </div>
+  </div>
+</div>

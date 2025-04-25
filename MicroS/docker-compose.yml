@@ -1,0 +1,361 @@
+services:
+  eureka-server:
+    build:
+      context: ./Eureka
+      dockerfile: Dockerfile
+      args:
+        - MAVEN_OPTS=-Dmaven.repo.local=/m2/repository
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      - SERVER_PORT=8761
+      - SPRING_APPLICATION_NAME=eureka-server
+      - SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED=false
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
+      - EUREKA_CLIENT_FETCH_REGISTRY=false
+      - EUREKA_INSTANCE_HOSTNAME=eureka-server
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - maven-repo:/m2/repository
+    networks:
+      - microservices-network
+
+  config-server:
+    build:
+      context: ./ConfigServer
+      dockerfile: Dockerfile
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    environment:
+      - SERVER_PORT=8888
+      - SPRING_APPLICATION_NAME=config-server
+      - SPRING_PROFILES_ACTIVE=native
+      - SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS=file:/app/config
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+    volumes:
+      - ./ConfigServer/config:/app/config
+      - maven-repo:/m2/repository
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - microservices-network
+
+  api-gateway:
+    build:
+      context: ./Gateway
+      dockerfile: Dockerfile
+      args:
+        - MAVEN_OPTS=-Dmaven.repo.local=/m2/repository
+    container_name: api-gateway
+    ports:
+      - "9094:9094"
+    environment:
+      - SERVER_PORT=9094
+      - SPRING_APPLICATION_NAME=Gateway
+      - SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED=false
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - EUREKA_CLIENT_INITIAL_INSTANCE_INFO_REPLICATION_INTERVAL_SECONDS=10
+      - EUREKA_CLIENT_REGISTRY_FETCH_INTERVAL_SECONDS=10
+      - EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS=5
+      - EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS=10
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    volumes:
+      - maven-repo:/m2/repository
+    networks:
+      - microservices-network
+
+  # MySQL container
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-server
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_ROOT_PASSWORD=
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - microservices-network
+
+  restaurant-service:
+    build:
+      context: ./Restaurant
+      dockerfile: Dockerfile
+      args:
+        - MAVEN_OPTS=-Dmaven.repo.local=/m2/repository
+    container_name: restaurant-service
+    ports:
+      - "9096:9096"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/crud?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SERVER_PORT=9096
+      - SPRING_APPLICATION_NAME=Restaurant
+      - SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED=false
+      - TWILIO_ACCOUNT_SID=
+      - TWILIO_AUTH_TOKEN=
+      - TWILIO_PHONE_NUMBER=
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - EUREKA_CLIENT_INITIAL_INSTANCE_INFO_REPLICATION_INTERVAL_SECONDS=10
+      - EUREKA_CLIENT_REGISTRY_FETCH_INTERVAL_SECONDS=10
+      - EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS=5
+      - EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS=10
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    volumes:
+      - maven-repo:/m2/repository
+    networks:
+      - microservices-network
+
+  gestion-recette:
+    build:
+      context: ./GestionRecette
+      dockerfile: Dockerfile
+      args:
+        - MAVEN_OPTS=-Dmaven.repo.local=/m2/repository
+    container_name: gestion-recette
+    ports:
+      - "8087:8087"
+    environment:
+      - SPRING_H2_CONSOLE_ENABLED=true
+      - SPRING_H2_CONSOLE_PATH=/h2-console
+      - SPRING_H2_CONSOLE_SETTINGS_WEB_ALLOW_OTHERS=true
+      - SPRING_DATASOURCE_URL=jdbc:h2:mem:library;DB_CLOSE_DELAY=-1
+      - SPRING_DATASOURCE_USERNAME=Salma
+      - SPRING_DATASOURCE_PASSWORD=
+      - SPRING_DATASOURCE_DRIVER=org.h2.Driver
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SERVER_PORT=8087
+      - SPRING_APPLICATION_NAME=GestionRecette
+      - SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED=false
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - EUREKA_CLIENT_INITIAL_INSTANCE_INFO_REPLICATION_INTERVAL_SECONDS=10
+      - EUREKA_CLIENT_REGISTRY_FETCH_INTERVAL_SECONDS=10
+      - EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS=5
+      - EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS=10
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    volumes:
+      - h2-data:/data
+      - maven-repo:/m2/repository
+    networks:
+      - microservices-network
+
+  # Update menu-service to include RabbitMQ configuration
+  menu-service:
+    build:
+      context: ./Menu
+      dockerfile: Dockerfile
+      args:
+        - MAVEN_OPTS=-Dmaven.repo.local=/m2/repository
+    container_name: menu-service
+    ports:
+      - "9092:9092"
+    environment:
+        - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/menuu?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+        - SPRING_DATASOURCE_USERNAME=root
+        - SPRING_DATASOURCE_PASSWORD=
+        - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+        - SERVER_PORT=9092
+        - SPRING_APPLICATION_NAME=Menu
+        - SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED=false
+        - SPRING_MAIL_HOST=smtp.gmail.com
+        - SPRING_MAIL_PORT=587
+        - SPRING_MAIL_USERNAME=mohamed.maamar21@gmail.com
+        - SPRING_MAIL_PASSWORD=rhyh scyv nlxg mywf
+        - SPRING_RABBITMQ_HOST=rabbitmq
+        - SPRING_RABBITMQ_PORT=5672
+        - SPRING_RABBITMQ_USERNAME=guest
+        - SPRING_RABBITMQ_PASSWORD=guest
+        - SPRING_MAIN_ALLOW_BEAN_DEFINITION_OVERRIDING=true
+        - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+        - EUREKA_CLIENT_INITIAL_INSTANCE_INFO_REPLICATION_INTERVAL_SECONDS=10
+        - EUREKA_CLIENT_REGISTRY_FETCH_INTERVAL_SECONDS=10
+        - EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS=5
+        - EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS=10
+        - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - maven-repo:/m2/repository
+    networks:
+      - microservices-network
+
+  avis-service:
+    build:
+      context: ./Avis
+      dockerfile: Dockerfile
+      args:
+        - MAVEN_OPTS=-Dmaven.repo.local=/m2/repository
+    container_name: avis-service
+    ports:
+      - "8086:8086"
+    environment:
+      - SPRING_H2_CONSOLE_ENABLED=true
+      - SPRING_H2_CONSOLE_PATH=/h2-console
+      - SPRING_H2_CONSOLE_SETTINGS_WEB_ALLOW_OTHERS=true
+      - SPRING_DATASOURCE_URL=jdbc:h2:mem:avis;DB_CLOSE_DELAY=-1
+      - SPRING_DATASOURCE_USERNAME=Yassine
+      - SPRING_DATASOURCE_PASSWORD=
+      - SPRING_DATASOURCE_DRIVER=org.h2.Driver
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SERVER_PORT=8086
+      - SPRING_APPLICATION_NAME=Avis
+      - SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED=false
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - EUREKA_CLIENT_INITIAL_INSTANCE_INFO_REPLICATION_INTERVAL_SECONDS=10
+      - EUREKA_CLIENT_REGISTRY_FETCH_INTERVAL_SECONDS=10
+      - EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS=5
+      - EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS=10
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    volumes:
+      - h2-data:/data
+      - maven-repo:/m2/repository
+    networks:
+      - microservices-network
+
+  event-service:
+    build:
+      context: ./Event
+      dockerfile: Dockerfile
+      args:
+        - MAVEN_OPTS=-Dmaven.repo.local=/m2/repository
+    container_name: event-service
+    ports:
+      - "8090:8090"
+    environment:
+      - SPRING_H2_CONSOLE_ENABLED=true
+      - SPRING_H2_CONSOLE_PATH=/h2-console
+      - SPRING_H2_CONSOLE_SETTINGS_WEB_ALLOW_OTHERS=true
+      - SPRING_DATASOURCE_URL=jdbc:h2:mem:event;DB_CLOSE_DELAY=-1
+      - SPRING_DATASOURCE_USERNAME=Mohamed
+      - SPRING_DATASOURCE_PASSWORD=
+      - SPRING_DATASOURCE_DRIVER=org.h2.Driver
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SERVER_PORT=8090
+      - SPRING_APPLICATION_NAME=Event
+      - SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED=false
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - EUREKA_CLIENT_INITIAL_INSTANCE_INFO_REPLICATION_INTERVAL_SECONDS=10
+      - EUREKA_CLIENT_REGISTRY_FETCH_INTERVAL_SECONDS=10
+      - EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS=5
+      - EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS=10
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    volumes:
+      - h2-data:/data
+      - maven-repo:/m2/repository
+    networks:
+      - microservices-network
+
+  # MongoDB for Panier service
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+
+  # RabbitMQ service
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - microservices-network
+
+
+  # BackendAvancé service
+  backend-avance:
+    build:
+      context: ./BackendAvancé
+      dockerfile: Dockerfile
+    container_name: backend-avance
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - MONGO_URI=mongodb://mongodb:27017/library-notes-db
+      - EUREKA_HOST=eureka-server
+      - EUREKA_PORT=8761
+      - NODE_ENV=production
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - microservices-network
+
+volumes:
+  h2-data:
+  mysql-data:
+  maven-repo:
+  mongodb-data:
+  rabbitmq-data:
+
+networks:
+  microservices-network:
+    driver: bridge
